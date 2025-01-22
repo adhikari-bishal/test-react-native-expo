@@ -1,7 +1,7 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { HomeScreen } from "./src/screens";
+import { HomeScreen, ListScreen } from "./src/screens";
 import { RootStackParamList } from "./src/types/navigationTypes";
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -15,6 +15,13 @@ export default function App() {
           component={HomeScreen}
           options={{
             headerTitle: "Test - React Native Expo",
+          }}
+        />
+        <Stack.Screen
+          name="ListScreen"
+          component={ListScreen}
+          options={{
+            headerTitle: "List Demo",
           }}
         />
       </Stack.Navigator>
