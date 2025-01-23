@@ -2,16 +2,19 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigationTypes";
+import AppLayout from "./layouts/AppLayout";
 
-type Props = NativeStackScreenProps<RootStackParamList, "HomeScreen">;
+type NavigationProps = NativeStackScreenProps<RootStackParamList, "HomeScreen">;
 
-function HomeScreen({ navigation }: Props) {
+function HomeScreen({ navigation }: NavigationProps) {
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.navigate("ListScreen")}>
-        <Text>List Demo</Text>
-      </TouchableOpacity>
-    </View>
+    <AppLayout>
+      <View style={styles.container}>
+        <TouchableOpacity onPress={() => navigation.navigate("ListScreen")}>
+          <Text>List Demo</Text>
+        </TouchableOpacity>
+      </View>
+    </AppLayout>
   );
 }
 
