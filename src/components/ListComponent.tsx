@@ -62,12 +62,14 @@ const ListComponent: React.FC<ListComponentProps> = ({ data = [] }) => {
     });
   }, []);
 
+  // reset search text, data on clear
   const handleClear = () => {
     inputRef.current?.clear();
     setSearchTerm("");
     setDataSource(data);
   };
 
+  // memoize item to avoid unnecessary re-renders
   const renderItem = useCallback(
     ({ item }: { item: Item }) => {
       const isSelected: boolean = selectedItems.some(
