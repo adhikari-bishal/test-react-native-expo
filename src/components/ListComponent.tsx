@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -7,72 +8,40 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import debounce from "lodash.debounce";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import {
+  clearSearch,
+  setSearchTerm,
+  toggleSelectItem,
+} from "../redux/slices/listSlice";
 
-interface Item {
-  id: number;
-  name: string;
-}
-
-interface ListComponentProps {
-  data: Item[];
-}
-
-const ListComponent: React.FC<ListComponentProps> = ({ data = [] }) => {
-  const [selectedItems, setSelectedItems] = useState<Item[]>([]);
-  const [dataSource, setDataSource] = useState<Item[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-
+const ListComponent: React.FC = () => {
+  const dispatch = useDispatch();
+  const { dataSource, selectedItems, searchTerm, loading } = useSelector(
+    (state: RootState) => state.list,
+  );
   const inputRef = useRef<TextInput>(null);
 
-  useEffect(() => {
-    setDataSource(data);
-  }, [data]);
+  const handleSearch = (text: string) => {
+    dispatch(setSearchTerm(text));
+  };
 
-  // Define a debounced search function instead of setTimeout
-  const search = useCallback(
-    debounce((searchValue: string) => {
-      if (searchValue.trim() === "") {
-        setDataSource(data);
-      } else {
-        setDataSource(
-          data.filter((item) =>
-            item.name.toLowerCase().includes(searchValue.toLowerCase()),
-          ),
-        );
-      }
-    }, 500),
-    [data],
+  const handleSelect = useCallback(
+    (item) => {
+      dispatch(toggleSelectItem(item));
+    },
+    [dispatch],
   );
 
-  const handleSearch = (text: string) => {
-    setSearchTerm(text);
-    search(text);
-  };
-
-  // Refactored to toggle item select onclick
-  const handleSelect = useCallback((item: Item) => {
-    setSelectedItems((prevSelected) => {
-      const isSelected = prevSelected.some(
-        (selected) => selected.id === item.id,
-      );
-      return isSelected
-        ? prevSelected.filter((selected) => selected.id !== item.id)
-        : [...prevSelected, item];
-    });
-  }, []);
-
-  // reset search text, data on clear
   const handleClear = () => {
     inputRef.current?.clear();
-    setSearchTerm("");
-    setDataSource(data);
+    dispatch(clearSearch());
   };
 
-  // memoize item to avoid unnecessary re-renders
   const renderItem = useCallback(
-    ({ item }: { item: Item }) => {
-      const isSelected: boolean = selectedItems.some(
+    ({ item }) => {
+      const isSelected = selectedItems.some(
         (selected) => selected.id === item.id,
       );
 
@@ -90,35 +59,31 @@ const ListComponent: React.FC<ListComponentProps> = ({ data = [] }) => {
         </TouchableOpacity>
       );
     },
-    [selectedItems],
+    [selectedItems, handleSelect],
   );
 
-  return (
+  return loading ? (
+    <ActivityIndicator size="large" />
+  ) : (
     <View style={styles.container}>
       <View style={styles.searchBar}>
         <TextInput
-          style={styles.input}
           ref={inputRef}
-          onChangeText={handleSearch}
+          style={styles.input}
+          placeholder="Search..."
           value={searchTerm}
-          placeholder="Search items..."
-          placeholderTextColor="#999"
+          onChangeText={handleSearch}
         />
         <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
           <Text style={styles.clearButtonText}>Clear</Text>
         </TouchableOpacity>
       </View>
-
       <FlatList
         data={dataSource}
-        keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 16 }}
+        keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={
-          <Text style={{ textAlign: "center", color: "#666", marginTop: 20 }}>
-            No items found
-          </Text>
+          <Text style={styles.emptyText}>No items found.</Text>
         }
       />
     </View>
@@ -174,6 +139,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
+  emptyText: { textAlign: "center", marginTop: 20 },
 });
 
 export default ListComponent;

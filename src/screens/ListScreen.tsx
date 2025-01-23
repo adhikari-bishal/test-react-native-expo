@@ -1,47 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import ListComponent from "../components/ListComponent";
 import AppLayout from "./layouts/AppLayout";
-import { RootStackParamList } from "../types/navigationTypes";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-
-interface Item {
-  id: number;
-  name: string;
-}
+import { RootStackParamList } from "../types/navigationTypes";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../redux/store";
+import { fetchData } from "../redux/slices/listSlice";
 
 type NavigationProps = NativeStackScreenProps<RootStackParamList, "ListScreen">;
 
 function ListScreen({ navigation }: NavigationProps) {
-  const [data, setData] = useState<Item[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch(
-        "https://jsonplaceholder.typicode.com/users",
-      );
-
-      const result = await response.json();
-
-      setData(result);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.list);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    dispatch(fetchData());
+  }, [dispatch]);
 
-  return loading ? (
-    <ActivityIndicator size={"large"} />
-  ) : (
+  return (
     <AppLayout>
       <View style={styles.container}>
-        <ListComponent data={data} />
+        {loading ? <ActivityIndicator size="large" /> : <ListComponent />}
       </View>
     </AppLayout>
   );

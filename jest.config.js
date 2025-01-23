@@ -4,7 +4,7 @@ module.exports = {
     "^.+\\.[tj]sx?$": "babel-jest", // Transform JS/TS using Babel
   },
   transformIgnorePatterns: [
-    "node_modules/(?!(react-native|@react-native|react-native-elements|expo|@expo|@unimodules|@react-navigation|@react-native-community|@testing-library))",
+    "node_modules/(?!(react-native|@react-native|react-native-elements|expo|@expo|@unimodules|@react-navigation|@react-native-community|@testing-library|react-redux))",
   ],
   setupFilesAfterEnv: ["<rootDir>/jest-setup.js"],
   moduleNameMapper: {
