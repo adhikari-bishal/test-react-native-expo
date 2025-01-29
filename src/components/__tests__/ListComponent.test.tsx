@@ -4,6 +4,8 @@ import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import rootReducer from "../../redux/rootReducer";
 
+jest.mock("lodash/debounce", () => jest.fn((fn) => fn));
+
 describe("<ListComponent />", () => {
   let store;
 
@@ -107,5 +109,29 @@ describe("<ListComponent />", () => {
 
     // Check if the search input is cleared
     expect(screen.getByPlaceholderText("Search...")).toHaveTextContent("");
+  });
+
+  it("shows loading indicator when fetching data or the data is loading", () => {
+    store = configureStore({
+      reducer: rootReducer,
+      preloadedState: {
+        list: {
+          data: [],
+          dataSource: [],
+          selectedItems: [],
+          searchTerm: "",
+          loading: true,
+          error: null,
+        },
+      },
+    });
+
+    render(
+      <Provider store={store}>
+        <ListComponent />
+      </Provider>,
+    );
+
+    expect(screen.getByTestId("activity-indicator")).toBeTruthy();
   });
 });

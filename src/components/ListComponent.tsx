@@ -15,6 +15,7 @@ import {
   setSearchTerm,
   toggleSelectItem,
 } from "../redux/slices/listSlice";
+import debounce from "lodash/debounce";
 
 const ListComponent: React.FC = () => {
   const dispatch = useDispatch();
@@ -23,9 +24,10 @@ const ListComponent: React.FC = () => {
   );
   const inputRef = useRef<TextInput>(null);
 
-  const handleSearch = (text: string) => {
-    dispatch(setSearchTerm(text));
-  };
+  const handleSearch = useCallback(
+    debounce((text) => dispatch(setSearchTerm(text)), 30),
+    [dispatch],
+  );
 
   const handleSelect = useCallback(
     (item) => {
@@ -63,7 +65,7 @@ const ListComponent: React.FC = () => {
   );
 
   return loading ? (
-    <ActivityIndicator size="large" />
+    <ActivityIndicator testID="activity-indicator" size="large" />
   ) : (
     <View style={styles.container}>
       <View style={styles.searchBar}>
@@ -73,6 +75,9 @@ const ListComponent: React.FC = () => {
           placeholder="Search..."
           value={searchTerm}
           onChangeText={handleSearch}
+          // Optimization for dark mode
+          accessible
+          accessibilityLabel="Search input"
         />
         <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
           <Text style={styles.clearButtonText}>Clear</Text>

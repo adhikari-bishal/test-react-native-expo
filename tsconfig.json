@@ -3,6 +3,9 @@
     "lib": [
       "esnext",
       "dom"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
     ]
   },
   "extends": "expo/tsconfig.base"
